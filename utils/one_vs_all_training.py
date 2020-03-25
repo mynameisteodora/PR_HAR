@@ -66,21 +66,44 @@ def generate_range(n, end, start=0):
 
 
 def initialise_model(num_filters=64, kernel_size=3, activation='relu',
-                     n_time_steps=38, n_features=3, n_classes=10):
-    model = Sequential()
-    model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                     activation=activation, input_shape=(n_time_steps, n_features)))
-    model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                     activation=activation))
-    model.add(BatchNormalization())
-    model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                     activation=activation))
-    model.add(Flatten())
-    model.add(Dense(100, activation='relu'))
-    model.add(Dense(n_classes, activation='softmax'))
+                     n_time_steps=38, n_features=3, n_classes=10, architecture='shallow'):
+    if architecture == 'shallow':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
 
-    model.summary()
-    return model
+        model.summary()
+        return model
+    elif architecture == 'deep':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
+
 
 
 def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, correctness='correct',
@@ -347,7 +370,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                       n_time_steps=38, step=19, n_features=3,
                       features=['accel_x_normalised', 'accel_y_normalised', 'accel_z_normalised'],
                       num_filters=64, kernel_size=3, activation='relu',
-                      lr=0.0001, batch_size=32, epochs=200):
+                      lr=0.0001, batch_size=32, epochs=200, architecture='shallow'):
     # Loading data
     data = pd.read_csv("../Preprocessed/raw_data.csv")
     data = data.reindex(columns=['timestamp', 'seq', 'accel_x', 'accel_y', 'accel_z',
@@ -474,7 +497,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         # create new model
         print("n_classes = {}".format(n_classes))
         model = initialise_model(num_filters=num_filters, kernel_size=kernel_size, activation=activation,
-                                 n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes)
+                                 n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes, architecture=architecture)
 
         # compile model
         model.compile(optimizer=sgd,
