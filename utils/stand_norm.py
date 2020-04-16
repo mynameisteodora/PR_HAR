@@ -238,3 +238,134 @@ def normalise_data(df, activities='all', subjects='all', correctness='all',
             df.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
 
     return df, scalers
+
+def normalise_data(df, activities='all', subjects='all', correctness='all',
+                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                           'accel_magnitude_standardised', 'accel_pca_standardised'],
+                   scaler_fit = None):
+    """
+    Normalises data
+    :param df:
+    :param activities:
+    :param subjects:
+    :param correctness:
+    :param axes:
+    :return:
+    """
+
+    scalers = {}
+
+    if activities == 'all':
+        activities = range(10)
+
+    if subjects == 'all':
+        subjects = get_subject_names()
+    else:
+        mask_subj = (df['subject'] == subjects[0])
+        for subj in subjects:
+            mask_subj = mask_subj | (df['subject'] == subj)
+
+        df_subj = df[mask_subj]
+        df_subj.reset_index(drop=True, inplace=True)
+
+    if correctness == 'all':
+        correctness_list = ['correct', 'incorrect']
+    else:
+        correctness_list = [correctness]
+
+    for cor in correctness_list:
+        scalers[cor] = {}
+
+    for correctness in correctness_list:
+
+        # filter by correctness
+        mask_df_cor = df_subj['correctness'] == correctness
+        df_cor = df_subj[mask_df_cor]
+        # print("Correctness = {}\t\tSamples = {}".format(correctness, len(df_cor)))
+
+        for activity in range(10):
+            # filter by act
+            mask_act = df_cor['activity'] == activity
+            df_act = df_cor[mask_act]
+            # print("Activity = {}\t\tSamples = {}".format(activity, len(df_act)))
+
+            if scaler_fit is None:
+                scaler = MinMaxScaler()
+                scaler.fit(df_act[axes])
+            else:
+                scaler = scaler_fit[correctness][activity]
+
+            new_vals = scaler.transform(df_act[axes])
+
+            scalers[correctness][activity] = scaler
+
+            final_mask = mask_df_cor & mask_act
+            df_subj.loc[final_mask, 'accel_x_normalised'] = new_vals[:, 0]
+            df_subj.loc[final_mask, 'accel_y_normalised'] = new_vals[:, 1]
+            df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
+            df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
+            df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
+
+    return df_subj, scalers
+
+def normalise_data_universal(df, activities='all', subjects='all', correctness='all',
+                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                           'accel_magnitude_standardised', 'accel_pca_standardised'],
+                   scaler_fit = None):
+    """
+    Uses a univsersal scaler to normalise all data, regardless of subject or activity
+    The only variable is speed
+    :param df:
+    :param activities:
+    :param subjects:
+    :param correctness:
+    :param axes:
+    :return:
+    """
+
+    scalers = {}
+
+    if activities == 'all':
+        activities = range(10)
+
+    if subjects == 'all':
+        subjects = get_subject_names()
+    else:
+        mask_subj = (df['subject'] == subjects[0])
+        for subj in subjects:
+            mask_subj = mask_subj | (df['subject'] == subj)
+
+        df_subj = df[mask_subj]
+        df_subj.reset_index(drop=True, inplace=True)
+
+    if correctness == 'all':
+        correctness_list = ['correct', 'incorrect']
+    else:
+        correctness_list = [correctness]
+
+    for cor in correctness_list:
+        scalers[cor] = {}
+
+    for correctness in correctness_list:
+
+        # filter by correctness
+        mask_df_cor = df_subj['correctness'] == correctness
+        df_cor = df_subj[mask_df_cor]
+        # print("Correctness = {}\t\tSamples = {}".format(correctness, len(df_cor)))
+
+        if scaler_fit is None:
+            scaler = MinMaxScaler()
+            scaler.fit(df_cor[axes])
+        else:
+            scaler = scaler_fit[correctness]
+
+        new_vals = scaler.transform(df_cor[axes])
+        scalers[correctness] = scaler
+
+        df_subj.loc[mask_df_cor, 'accel_x_normalised'] = new_vals[:, 0]
+        df_subj.loc[mask_df_cor, 'accel_y_normalised'] = new_vals[:, 1]
+        df_subj.loc[mask_df_cor, 'accel_z_normalised'] = new_vals[:, 2]
+        df_subj.loc[mask_df_cor, 'accel_magnitude_normalised'] = new_vals[:, 3]
+        df_subj.loc[mask_df_cor, 'accel_pca_normalised'] = new_vals[:, 4]
+
+    return df_subj, scalers
