@@ -383,9 +383,12 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
     :param axes:
     :return:
     """
+    # prefilter to erase the activity fit for the normaliser
+    df = df[df['activity'] != activity_norm]
 
     if subjects == 'all':
         subjects = get_subject_names()
+        df_subj = df
     else:
         mask_subj = (df['subject'] == subjects[0])
         for subj in subjects:
@@ -411,21 +414,24 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
         print("Loading scaler for correctness = {} and activity = {}".format(correctness, activity_norm))
         scaler = scaler_fit[correctness][activity_norm]
 
+
+
         for activity in range(10):
-            # filter by act
-            mask_act = df_cor['activity'] == activity
-            df_act = df_cor[mask_act]
-            # print("Activity = {}\t\tSamples = {}".format(activity, len(df_act)))
+            if activity != activity_norm:
+                # filter by act
+                mask_act = df_cor['activity'] == activity
+                df_act = df_cor[mask_act]
+                # print("Activity = {}\t\tSamples = {}".format(activity, len(df_act)))
 
-            scaler.fit(df_act[axes])
+                scaler.fit(df_act[axes])
 
-            new_vals = scaler.transform(df_act[axes])
+                new_vals = scaler.transform(df_act[axes])
 
-            final_mask = mask_df_cor & mask_act
-            df_subj.loc[final_mask, 'accel_x_normalised'] = new_vals[:, 0]
-            df_subj.loc[final_mask, 'accel_y_normalised'] = new_vals[:, 1]
-            df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
-            df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
-            df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
+                final_mask = mask_df_cor & mask_act
+                df_subj.loc[final_mask, 'accel_x_normalised'] = new_vals[:, 0]
+                df_subj.loc[final_mask, 'accel_y_normalised'] = new_vals[:, 1]
+                df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
+                df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
+                df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
 
     return df_subj
