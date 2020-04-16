@@ -1,0 +1,65 @@
+Timestamps in local time for easy debugging! Timezone offset to UTC (millis): 7200000
+2020-03-30 03:07:37: Respeck disconnected: BleGattException{macAddress=E0:24:71:49:05:4A, status=8 (0x08 -> https://android.googlesource.com/platform/external/bluetooth/bluedroid/+/android-5.1.0_r1/stack/include/gatt_api.h), bleGattOperationType=BleGattOperation{description='CONNECTION_STATE'}}
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.propagateStatusErrorIfGattErrorOccurred(RxBleGattCallback.java:233)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.access$200(RxBleGattCallback.java:35)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback$3.onConnectionStateChange(RxBleGattCallback.java:86)
+	at android.bluetooth.BluetoothGatt$1$4.run(BluetoothGatt.java:249)
+	at android.bluetooth.BluetoothGatt.runOrQueueCallback(BluetoothGatt.java:725)
+	at android.bluetooth.BluetoothGatt.-wrap0(Unknown Source:0)
+	at android.bluetooth.BluetoothGatt$1.onClientConnectionState(BluetoothGatt.java:244)
+	at android.bluetooth.IBluetoothGattCallback$Stub.onTransact(IBluetoothGattCallback.java:70)
+	at android.os.Binder.execTransact(Binder.java:704)
+
+2020-03-30 03:07:37: RESpeck disconnected
+2020-03-30 03:40:26: Connecting to RESpeck
+2020-03-30 03:40:27: Subscribed to RESpeck
+2020-03-30 04:23:15: Respeck disconnected: BleGattException{macAddress=E0:24:71:49:05:4A, status=8 (0x08 -> https://android.googlesource.com/platform/external/bluetooth/bluedroid/+/android-5.1.0_r1/stack/include/gatt_api.h), bleGattOperationType=BleGattOperation{description='CONNECTION_STATE'}}
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.propagateStatusErrorIfGattErrorOccurred(RxBleGattCallback.java:233)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.access$200(RxBleGattCallback.java:35)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback$3.onConnectionStateChange(RxBleGattCallback.java:86)
+	at android.bluetooth.BluetoothGatt$1$4.run(BluetoothGatt.java:249)
+	at android.bluetooth.BluetoothGatt.runOrQueueCallback(BluetoothGatt.java:725)
+	at android.bluetooth.BluetoothGatt.-wrap0(Unknown Source:0)
+	at android.bluetooth.BluetoothGatt$1.onClientConnectionState(BluetoothGatt.java:244)
+	at android.bluetooth.IBluetoothGattCallback$Stub.onTransact(IBluetoothGattCallback.java:70)
+	at android.os.Binder.execTransact(Binder.java:704)
+
+2020-03-30 04:23:15: RESpeck disconnected
+2020-03-30 04:26:56: Connecting to RESpeck
+2020-03-30 04:26:57: Subscribed to RESpeck
+2020-03-30 07:21:47: Respeck disconnected: BleGattException{macAddress=E0:24:71:49:05:4A, status=8 (0x08 -> https://android.googlesource.com/platform/external/bluetooth/bluedroid/+/android-5.1.0_r1/stack/include/gatt_api.h), bleGattOperationType=BleGattOperation{description='CONNECTION_STATE'}}
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.propagateStatusErrorIfGattErrorOccurred(RxBleGattCallback.java:233)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.access$200(RxBleGattCallback.java:35)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback$3.onConnectionStateChange(RxBleGattCallback.java:86)
+	at android.bluetooth.BluetoothGatt$1$4.run(BluetoothGatt.java:249)
+	at android.bluetooth.BluetoothGatt.runOrQueueCallback(BluetoothGatt.java:725)
+	at android.bluetooth.BluetoothGatt.-wrap0(Unknown Source:0)
+	at android.bluetooth.BluetoothGatt$1.onClientConnectionState(BluetoothGatt.java:244)
+	at android.bluetooth.IBluetoothGattCallback$Stub.onTransact(IBluetoothGattCallback.java:70)
+	at android.os.Binder.execTransact(Binder.java:704)
+
+2020-03-30 07:21:47: RESpeck disconnected
+2020-03-30 07:32:56: Connecting to RESpeck
+2020-03-30 07:32:58: Subscribed to RESpeck
+2020-03-30 09:29:18: Respeck disconnected: BleGattException{macAddress=E0:24:71:49:05:4A, status=8 (0x08 -> https://android.googlesource.com/platform/external/bluetooth/bluedroid/+/android-5.1.0_r1/stack/include/gatt_api.h), bleGattOperationType=BleGattOperation{description='CONNECTION_STATE'}}
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.propagateStatusErrorIfGattErrorOccurred(RxBleGattCallback.java:233)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback.access$200(RxBleGattCallback.java:35)
+	at com.polidea.rxandroidble.internal.connection.RxBleGattCallback$3.onConnectionStateChange(RxBleGattCallback.java:86)
+	at android.bluetooth.BluetoothGatt$1$4.run(BluetoothGatt.java:249)
+	at android.bluetooth.BluetoothGatt.runOrQueueCallback(BluetoothGatt.java:725)
+	at android.bluetooth.BluetoothGatt.-wrap0(Unknown Source:0)
+	at android.bluetooth.BluetoothGatt$1.onClientConnectionState(BluetoothGatt.java:244)
+	at android.bluetooth.IBluetoothGattCallback$Stub.onTransact(IBluetoothGattCallback.java:70)
+	at android.os.Binder.execTransact(Binder.java:704)
+
+2020-03-30 09:29:18: RESpeck disconnected
+2020-03-30 09:40:27: Connecting to RESpeck
+2020-03-30 09:40:29: Subscribed to RESpeck
+2020-03-30 13:25:01: App started and initialised
+2020-03-30 13:25:01: Speck Bluetooth service already running. Don't start it again.
+2020-03-30 13:25:01: App was brought into foreground (Main Activity) resumed
+2020-03-30 15:20:32: App started and initialised
+2020-03-30 15:20:32: Speck Bluetooth service already running. Don't start it again.
+2020-03-30 15:20:33: App was brought into foreground (Main Activity) resumed
+2020-03-30 15:22:05: App was brought into foreground (Main Activity) resumed
+2020-03-30 15:30:45: App was brought into foreground (Main Activity) resumed

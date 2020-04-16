@@ -1,4 +1,5 @@
 import sys
+
 sys.path.append('..')
 
 from utils.constants import *
@@ -23,6 +24,7 @@ from keras.layers import Flatten
 from keras.layers import Conv1D, Dropout, MaxPooling1D, BatchNormalization
 from keras import optimizers
 
+
 def comparative_plots_one_vs_all_activity(one_vs_all_activity=0):
     df_all = pd.read_csv('../Preprocessed/all_data.csv')
 
@@ -41,7 +43,7 @@ def comparative_plots_one_vs_all_activity(one_vs_all_activity=0):
         subject = subjects[subject_counter]
 
         mask = (df_all['subject'] == subject) & (df_all['correctness'] == correctness) & (
-                    df_all['activity'] == one_vs_all_activity)
+                df_all['activity'] == one_vs_all_activity)
 
         df_filtered = df_all[mask]
 
@@ -62,7 +64,7 @@ def comparative_plots_one_vs_all_activity(one_vs_all_activity=0):
 
 
 def generate_range(n, end, start=0):
-    return list(range(start, n)) + list(range(n+1, end))
+    return list(range(start, n)) + list(range(n + 1, end))
 
 
 def initialise_model(num_filters=64, kernel_size=3, activation='relu',
@@ -104,6 +106,84 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model.summary()
         return model
 
+    elif architecture == 'batchnorm':
+        model = Sequential()
+        model.add(BatchNormalization(input_shape=(n_time_steps, n_features)))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
+
+    elif architecture == 'dropout':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
+    elif architecture == 'pooling':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
 
 
 def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, correctness='correct',
@@ -112,7 +192,6 @@ def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, co
                       features=['accel_x_normalised', 'accel_y_normalised', 'accel_z_normalised'],
                       num_filters=64, kernel_size=3, activation='relu',
                       lr=0.0001, batch_size=32, epochs=200, downsample_rate=4, positive_class_weight=50.):
-
     # Loading data
     data = pd.read_csv("../Preprocessed/raw_data.csv")
     data = data.reindex(columns=['timestamp', 'seq', 'accel_x', 'accel_y', 'accel_z',
@@ -248,7 +327,7 @@ def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, co
 
         # create new model
         model = initialise_model(num_filters=num_filters, kernel_size=kernel_size, activation=activation,
-                     n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes)
+                                 n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes)
 
         # compile model
         model.compile(optimizer=sgd,
@@ -326,7 +405,6 @@ def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, co
     fig.tight_layout()
     plt.savefig("../Plots/{}/mean_cm_losoxv.pdf".format(experiment_name))
 
-
     # training and validation lines
     training_lines = []
     validation_lines = []
@@ -365,12 +443,14 @@ def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, co
 
     return losoxv_stats, cm, histories
 
+
 def losoxv_all(experiment_name, random_seed=42, correctness='correct',
-                      n_train_subjects=12, n_validation_subjects=2,
-                      n_time_steps=38, step=19, n_features=3,
-                      features=['accel_x_normalised', 'accel_y_normalised', 'accel_z_normalised'],
-                      num_filters=64, kernel_size=3, activation='relu',
-                      lr=0.0001, batch_size=32, epochs=200, architecture='shallow'):
+               n_train_subjects=12, n_validation_subjects=2,
+               n_time_steps=38, step=19, n_features=3,
+               features=['accel_x_normalised', 'accel_y_normalised', 'accel_z_normalised'],
+               num_filters=64, kernel_size=3, activation='relu',
+               lr=0.0001, batch_size=32, epochs=200, architecture='shallow', optimiser='sgd',
+               remove_outliers_preprocess=True, normalisation='per_activity'):
     # Loading data
     data = pd.read_csv("../Preprocessed/raw_data.csv")
     data = data.reindex(columns=['timestamp', 'seq', 'accel_x', 'accel_y', 'accel_z',
@@ -390,6 +470,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
     n_subjects = len(subjects)
 
     sgd = optimizers.SGD(lr=lr)
+    adam = optimizers.Adam(learning_rate=lr, beta_1=0.9, beta_2=0.999, amsgrad=False)
 
     # dictionaries for statistics
     # they will all have keys = left out subject and value = stats
@@ -405,8 +486,8 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
 
     for i in range(len(subjects)):
 
-#         if i > 1:
-#             break
+        #         if i > 1:
+        #             break
 
         # generate training, validation and test subjects
         left_out_subject = subjects[i]
@@ -440,17 +521,18 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         data_test = data[data['subject'] == left_out_subject]
         data_test.reset_index(drop=True, inplace=True)
 
-        print("-" * 80)
-        print("Removing outliers")
-        print("-" * 80)
+        if remove_outliers_preprocess:
+            print("-" * 80)
+            print("Removing outliers")
+            print("-" * 80)
 
-        # remove outliers for training
-        data_train, _, _ = remove_outliers(data_train, activities=activities, subjects=train_valid_subjects,
-                                           correctness=correctness)
+            # remove outliers for training
+            data_train, _, _ = remove_outliers(data_train, activities=activities, subjects=train_valid_subjects,
+                                               correctness=correctness)
 
-        # remove outliers for test
-        data_test, _, _ = remove_outliers(data_test, activities=activities, subjects=[left_out_subject],
-                                          correctness=correctness)
+            # remove outliers for test
+            data_test, _, _ = remove_outliers(data_test, activities=activities, subjects=[left_out_subject],
+                                              correctness=correctness)
 
         print("-" * 80)
         print("Standardising")
@@ -468,13 +550,23 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         print("Normalising")
         print("-" * 80)
 
-        # normalise for training
-        data_train, scaler_fit = normalise_data(data_train, activities=activities, subjects=train_valid_subjects,
-                                                correctness=correctness)
+        if normalisation == 'per_activity':
+            # normalise for training
+            data_train, scaler_fit = normalise_data(data_train, activities=activities, subjects=train_valid_subjects,
+                                                    correctness=correctness)
 
-        # normalise for test
-        data_test, _ = normalise_data(data_test, activities=activities, subjects=[left_out_subject],
-                                      correctness=correctness, scaler_fit=scaler_fit)
+            # normalise for test
+            data_test, _ = normalise_data(data_test, activities=activities, subjects=[left_out_subject],
+                                          correctness=correctness, scaler_fit=scaler_fit)
+
+        elif normalisation == 'universal':
+            # normalise for training
+            data_train, scaler_fit = normalise_data_universal(data_train, activities=activities, subjects=train_valid_subjects,
+                                                    correctness=correctness)
+
+            # normalise for test
+            data_test, _ = normalise_data_universal(data_test, activities=activities, subjects=[left_out_subject],
+                                          correctness=correctness, scaler_fit=scaler_fit)
 
         print("-" * 80)
         print("Generating datasets")
@@ -497,12 +589,18 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         # create new model
         print("n_classes = {}".format(n_classes))
         model = initialise_model(num_filters=num_filters, kernel_size=kernel_size, activation=activation,
-                                 n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes, architecture=architecture)
+                                 n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes,
+                                 architecture=architecture)
 
         # compile model
-        model.compile(optimizer=sgd,
-                      loss='categorical_crossentropy',
-                      metrics=['accuracy', 'mse'])
+        if optimiser == 'sgd':
+            model.compile(optimizer=sgd,
+                          loss='categorical_crossentropy',
+                          metrics=['accuracy', 'mse'])
+        elif optimiser == 'adam':
+            model.compile(optimizer=adam,
+                          loss='categorical_crossentropy',
+                          metrics=['accuracy', 'mse'])
 
         history = model.fit(X_train, y_train,
                             batch_size=batch_size, epochs=epochs,
