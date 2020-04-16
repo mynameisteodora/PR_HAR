@@ -152,6 +152,36 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
 
         model.summary()
         return model
+    elif architecture == 'pooling':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation)) 
+        model.add(BatchNormalization())
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2)) 
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
 
 
 
@@ -439,6 +469,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
     n_subjects = len(subjects)
 
     sgd = optimizers.SGD(lr=lr)
+    adam = optimizers.Adam(learning_rate=lr, beta_1=0.9, beta_2=0.999, amsgrad=False)
 
     # dictionaries for statistics
     # they will all have keys = left out subject and value = stats
