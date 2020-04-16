@@ -369,3 +369,63 @@ def normalise_data_universal(df, activities='all', subjects='all', correctness='
         df_subj.loc[mask_df_cor, 'accel_pca_normalised'] = new_vals[:, 4]
 
     return df_subj, scalers
+
+def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correctness='all',
+                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                           'accel_magnitude_standardised', 'accel_pca_standardised']):
+    """
+    Takes a dataset and a fit normaliser ONLY FOR ONE ACTIVITY
+    and returns the dataset normalised with that specific normaliser
+    :param df:
+    :param activities:
+    :param subjects:
+    :param correctness:
+    :param axes:
+    :return:
+    """
+
+    if subjects == 'all':
+        subjects = get_subject_names()
+    else:
+        mask_subj = (df['subject'] == subjects[0])
+        for subj in subjects:
+            mask_subj = mask_subj | (df['subject'] == subj)
+
+        df_subj = df[mask_subj]
+        df_subj.reset_index(drop=True, inplace=True)
+
+    if correctness == 'all':
+        correctness_list = ['correct', 'incorrect']
+    else:
+        correctness_list = [correctness]
+
+
+    for correctness in correctness_list:
+
+        # filter by correctness
+        mask_df_cor = df_subj['correctness'] == correctness
+        df_cor = df_subj[mask_df_cor]
+        # print("Correctness = {}\t\tSamples = {}".format(correctness, len(df_cor)))
+
+        # load the scaler for the specific selected activity
+        print("Loading scaler for correctness = {} and activity = {}".format(correctness, activity_norm))
+        scaler = scaler_fit[correctness][activity_norm]
+
+        for activity in range(10):
+            # filter by act
+            mask_act = df_cor['activity'] == activity
+            df_act = df_cor[mask_act]
+            # print("Activity = {}\t\tSamples = {}".format(activity, len(df_act)))
+
+            scaler.fit(df_act[axes])
+
+            new_vals = scaler.transform(df_act[axes])
+
+            final_mask = mask_df_cor & mask_act
+            df_subj.loc[final_mask, 'accel_x_normalised'] = new_vals[:, 0]
+            df_subj.loc[final_mask, 'accel_y_normalised'] = new_vals[:, 1]
+            df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
+            df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
+            df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
+
+    return df_subj

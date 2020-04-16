@@ -618,23 +618,94 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
             data_test, _ = normalise_data_universal(data_test, activities=activities, subjects=[left_out_subject],
                                           correctness=correctness, scaler_fit=scaler_fit)
 
-        print("-" * 80)
-        print("Generating datasets")
-        print("-" * 80)
+        elif normalisation == 'cross':
+            # normalise each activity with normalisers from all other activities
+            # but keep the correctness separation
+            data_train, scaler_fit = normalise_data(data_train, activities=activities, subjects=train_valid_subjects,
+                                                    correctness=correctness)
 
-        # Generate datasets
-        X_train, y_train = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
-                                            step=step, features=features,
-                                            one_vs_all_activity='all', subjects=train_subjects, correctness=correctness)
+            # normalise for test
+            data_test, _ = normalise_data(data_test, activities=activities, subjects=[left_out_subject],
+                                                    correctness=correctness, scaler_fit=scaler_fit)
 
-        X_valid, y_valid = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
-                                            step=step, features=features,
-                                            one_vs_all_activity='all', subjects=valid_subjects, correctness=correctness)
+            # Generate datasets
+            X_train, y_train = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
+                                                step=step, features=features,
+                                                one_vs_all_activity='all', subjects=train_subjects,
+                                                correctness=correctness)
 
-        X_test, y_test = generate_dataset(df=data_test, n_time_steps=n_time_steps, n_features=n_features,
-                                          step=step, features=features,
-                                          one_vs_all_activity='all', subjects=[left_out_subject],
-                                          correctness=correctness)
+            X_valid, y_valid = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
+                                                step=step, features=features,
+                                                one_vs_all_activity='all', subjects=valid_subjects,
+                                                correctness=correctness)
+
+            X_test, y_test = generate_dataset(df=data_test, n_time_steps=n_time_steps, n_features=n_features,
+                                              step=step, features=features,
+                                              one_vs_all_activity='all', subjects=[left_out_subject],
+                                              correctness=correctness)
+
+            print("Initial lengths of datasets = {}, {}, {}".format(len(X_train), len(X_valid), len(X_test)))
+            print("Initial lengths of labels = {}, {}, {}".format(len(y_train), len(y_valid), len(y_test)))
+
+            print("*"*80)
+            print("Cross normalising...")
+            print("*" * 80)
+            for act in range(10):
+                print("Activity {}".format(act))
+                print("Cross normalising training")
+                data_train_cross = cross_normalise_data(data_train, activity_norm=act, subjects=train_valid_subjects,
+                                                        correctness=correctness, scaler_fit=scaler_fit)
+                print("Cross normalising test")
+                data_test_cross = cross_normalise_data(data_test, activity_norm=act, subjects=[left_out_subject],
+                                                       correctness=correctness, scaler_fit=scaler_fit)
+
+                print("Training samples")
+                X_train_cross, y_train_cross = generate_dataset(df=data_train_cross, n_time_steps=n_time_steps, n_features=n_features,
+                                                                step=step, features=features,
+                                                                one_vs_all_activity='all', subjects=train_subjects,
+                                                                correctness=correctness)
+
+                print("Validation samples")
+                X_valid_cross, y_valid_cross = generate_dataset(df=data_train_cross, n_time_steps=n_time_steps, n_features=n_features,
+                                                    step=step, features=features,
+                                                    one_vs_all_activity='all', subjects=valid_subjects,
+                                                    correctness=correctness)
+
+                print("Test samples")
+                X_test_cross, y_test_cross = generate_dataset(df=data_test_cross, n_time_steps=n_time_steps, n_features=n_features,
+                                                  step=step, features=features,
+                                                  one_vs_all_activity='all', subjects=[left_out_subject],
+                                                  correctness=correctness)
+
+                X_train = np.concatenate((X_train, X_train_cross), axis=0)
+                X_valid = np.concatenate((X_valid, X_valid_cross), axis=0)
+                X_test = np.concatenate((X_test, X_test_cross), axis=0)
+                y_train = np.concatenate((y_train, y_train_cross), axis=0)
+                y_valid = np.concatenate((y_valid, y_valid_cross), axis=0)
+                y_test = np.concatenate((y_test, y_test_cross), axis=0)
+
+                print("Lengths of datasets = {}, {}, {}".format(len(X_train), len(X_valid), len(X_test)))
+                print("Lengths of labels = {}, {}, {}".format(len(y_train), len(y_valid), len(y_test)))
+
+
+        if normalisation != 'cross':
+            print("-" * 80)
+            print("Generating datasets")
+            print("-" * 80)
+
+            # Generate datasets
+            X_train, y_train = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
+                                                step=step, features=features,
+                                                one_vs_all_activity='all', subjects=train_subjects, correctness=correctness)
+
+            X_valid, y_valid = generate_dataset(df=data_train, n_time_steps=n_time_steps, n_features=n_features,
+                                                step=step, features=features,
+                                                one_vs_all_activity='all', subjects=valid_subjects, correctness=correctness)
+
+            X_test, y_test = generate_dataset(df=data_test, n_time_steps=n_time_steps, n_features=n_features,
+                                              step=step, features=features,
+                                              one_vs_all_activity='all', subjects=[left_out_subject],
+                                              correctness=correctness)
 
         # create new model
         print("n_classes = {}".format(n_classes))
