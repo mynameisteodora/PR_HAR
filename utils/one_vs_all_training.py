@@ -154,6 +154,36 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
 
         model.summary()
         return model
+    elif architecture == 'pooling':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation)) 
+        model.add(BatchNormalization())
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(MaxPooling1D(pool_size=4, strides=2)) 
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
 
     elif architecture == 'batchnorm':
         model = Sequential()
