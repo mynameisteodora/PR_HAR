@@ -105,6 +105,55 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
 
         model.summary()
         return model
+    
+    elif architecture == 'batchnorm':
+        model = Sequential()
+        model.add(BatchNormalization(input_shape=(n_time_steps, n_features)))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
+    
+    elif architecture=='dropout':
+        model = Sequential()
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation=activation, input_shape=(n_time_steps, n_features)))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+        model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
+                         activation=activation))
+        model.add(Flatten())
+        model.add(Dense(100, activation='relu'))
+        model.add(Dense(n_classes, activation='softmax'))
+
+        model.summary()
+        return model
 
     elif architecture == 'batchnorm':
         model = Sequential()
@@ -451,6 +500,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                num_filters=64, kernel_size=3, activation='relu',
                lr=0.0001, batch_size=32, epochs=200, architecture='shallow', optimiser='sgd',
                remove_outliers_preprocess=True, normalisation='per_activity'):
+
     # Loading data
     data = pd.read_csv("../Preprocessed/raw_data.csv")
     data = data.reindex(columns=['timestamp', 'seq', 'accel_x', 'accel_y', 'accel_z',
