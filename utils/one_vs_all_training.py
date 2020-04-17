@@ -190,29 +190,31 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
                          activation='linear', input_shape=(n_time_steps, n_features),
-                         kernel_regularizer=regularizers.l1_l2(l1, l2)))
+                         activity_regularizer=regularizers.l1_l2(l1, l2)))
         model.add(BatchNormalization())
         model.add(Activation(activation))
-
-        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', kernel_regularizer=regularizers.l1_l2(l1, l2)))
+        #
+        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+        #                  activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size))
         model.add(Activation(activation))
         model.add(BatchNormalization())
 
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', kernel_regularizer=regularizers.l1_l2(l1, l2)))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
+        model.add(Activation(activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(dropout_rate))
+
+        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+        #                  activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size))
         model.add(Activation(activation))
         model.add(BatchNormalization())
         model.add(Dropout(dropout_rate))
 
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', kernel_regularizer=regularizers.l1_l2(l1, l2)))
-        model.add(Activation(activation))
-        model.add(BatchNormalization())
-        model.add(Dropout(dropout_rate))
-
-        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', kernel_regularizer=regularizers.l1_l2(l1, l2)))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
         model.add(Activation(activation))
         model.add(BatchNormalization())
         model.add(Dropout(dropout_rate))
