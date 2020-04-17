@@ -193,10 +193,16 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model.add(BatchNormalization())
         model.add(Activation(activation))
 
-        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
-        model.add(Activation(activation))
-        model.add(BatchNormalization())
+        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+        #                  activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        # model.add(Activation(activation))
+        # model.add(BatchNormalization())
+
+        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+        #                  activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        # model.add(Activation(activation))
+        # model.add(BatchNormalization())
+        # model.add(Dropout(0.2))
 
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
                          activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
@@ -204,13 +210,7 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model.add(BatchNormalization())
         model.add(Dropout(0.2))
 
-        model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
-                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
-        model.add(Activation(activation))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.2))
-
-        model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
                          activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
         model.add(Activation(activation))
         model.add(BatchNormalization())
