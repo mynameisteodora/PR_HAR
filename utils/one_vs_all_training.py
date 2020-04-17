@@ -727,6 +727,11 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         y_pred_labels = np.argmax(y_pred_ohe, axis=1)
         y_true_labels = np.argmax(y_test, axis=1)
 
+        print("*" * 80)
+        print("Classification report")
+        print("*" * 80)
+        print(metrics.classification_report(y_true_labels, y_pred_labels))
+
         activity_labels = get_activity_label_dict()
         cm_labels = [activity_labels[i] for i in range(10)]
 
