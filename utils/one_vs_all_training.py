@@ -69,7 +69,8 @@ def generate_range(n, end, start=0):
 
 
 def initialise_model(num_filters=64, kernel_size=3, activation='relu',
-                     n_time_steps=38, n_features=3, n_classes=10, architecture='shallow'):
+                     n_time_steps=38, n_features=3, n_classes=10, architecture='shallow',
+                     l1=0.01, l2=0.01, dropout_rate=0.2):
     if architecture == 'shallow':
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
@@ -142,11 +143,11 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
                          activation=activation))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
+        model.add(Dropout(dropout_rate))
         model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
                          activation=activation))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
+        model.add(Dropout(dropout_rate))
         model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
                          activation=activation))
         model.add(Flatten())
@@ -170,12 +171,12 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
                          activation=activation))
         model.add(MaxPooling1D(pool_size=4, strides=2))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
+        model.add(Dropout(dropout_rate))
         
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
                          activation=activation))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
+        model.add(Dropout(dropout_rate))
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
                          activation=activation))
         model.add(MaxPooling1D(pool_size=4, strides=2)) 
@@ -189,32 +190,32 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
                          activation='linear', input_shape=(n_time_steps, n_features),
-                         activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+                         activity_regularizer=regularizers.l1_l2(l1, l2)))
         model.add(BatchNormalization())
         model.add(Activation(activation))
-
-        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-        #                  activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
-        # model.add(Activation(activation))
-        # model.add(BatchNormalization())
-
-        # model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-        #                  activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
-        # model.add(Activation(activation))
-        # model.add(BatchNormalization())
-        # model.add(Dropout(0.2))
 
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
         model.add(Activation(activation))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
 
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
         model.add(Activation(activation))
         model.add(BatchNormalization())
-        model.add(Dropout(0.2))
+        model.add(Dropout(dropout_rate))
+
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
+        model.add(Activation(activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(dropout_rate))
+
+        model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
+                         activation='linear', activity_regularizer=regularizers.l1_l2(l1, l2)))
+        model.add(Activation(activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(dropout_rate))
 
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
@@ -490,7 +491,8 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                features=['accel_x_normalised', 'accel_y_normalised', 'accel_z_normalised'],
                num_filters=64, kernel_size=3, activation='relu',
                lr=0.0001, batch_size=32, epochs=200, architecture='shallow', optimiser='sgd',
-               remove_outliers_preprocess=True, normalisation='per_activity'):
+               remove_outliers_preprocess=True, normalisation='per_activity',
+               l1=0.01, l2=0.01, dropout_rate=0.2):
 
     # Loading data
     data = pd.read_csv("../Preprocessed/raw_data.csv")
@@ -702,7 +704,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         print("n_classes = {}".format(n_classes))
         model = initialise_model(num_filters=num_filters, kernel_size=kernel_size, activation=activation,
                                  n_time_steps=n_time_steps, n_features=n_features, n_classes=n_classes,
-                                 architecture=architecture)
+                                 architecture=architecture, l1=l1, l2=l2, dropout_rate=dropout_rate)
 
         # compile model
         if optimiser == 'sgd':
