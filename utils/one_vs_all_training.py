@@ -18,11 +18,12 @@ import pickle
 
 from keras.regularizers import l2
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Activation
 from keras.layers import LSTM
 from keras.layers import Flatten
 from keras.layers import Conv1D, Dropout, MaxPooling1D, BatchNormalization
 from keras import optimizers
+from keras import regularizers
 
 
 def comparative_plots_one_vs_all_activity(one_vs_all_activity=0):
@@ -184,85 +185,45 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
 
         model.summary()
         return model
-
-    elif architecture == 'batchnorm':
-        model = Sequential()
-        model.add(BatchNormalization(input_shape=(n_time_steps, n_features)))
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
-        model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(Flatten())
-        model.add(Dense(100, activation='relu'))
-        model.add(Dense(n_classes, activation='softmax'))
-
-        model.summary()
-        return model
-
-    elif architecture == 'dropout':
+    elif architecture == 'deep-regularisation':
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
+                         activation='linear', input_shape=(n_time_steps, n_features),
+                         activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
+
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        model.add(Activation(activation))
         model.add(BatchNormalization())
+
         model.add(Conv1D(filters=num_filters // 2, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        model.add(Activation(activation))
         model.add(BatchNormalization())
         model.add(Dropout(0.2))
+
         model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        model.add(Activation(activation))
         model.add(BatchNormalization())
         model.add(Dropout(0.2))
+
         model.add(Conv1D(filters=num_filters // 4, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear', activity_regularizer=regularizers.l1_l2(0.01, 0.01)))
+        model.add(Activation(activation))
+        model.add(BatchNormalization())
+        model.add(Dropout(0.2))
+
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
         model.add(Dense(n_classes, activation='softmax'))
 
         model.summary()
         return model
-    elif architecture == 'pooling':
-        model = Sequential()
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
-        model.add(MaxPooling1D(pool_size=4, strides=2))
-        model.add(BatchNormalization())
 
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
 
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(MaxPooling1D(pool_size=4, strides=2))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.2))
-
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
-        model.add(Dropout(0.2))
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(MaxPooling1D(pool_size=4, strides=2))
-        model.add(Flatten())
-        model.add(Dense(100, activation='relu'))
-        model.add(Dense(n_classes, activation='softmax'))
-
-        model.summary()
-        return model
 
 
 def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, correctness='correct',
