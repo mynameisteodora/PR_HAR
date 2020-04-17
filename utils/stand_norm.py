@@ -435,3 +435,53 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
                 df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
 
     return df_subj
+
+def normalise_data_single(df, activities='all', subjects='all', correctness='all',
+                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                           'accel_magnitude_standardised', 'accel_pca_standardised']):
+
+    if activities == 'all':
+        activities = range(10)
+
+    if subjects == 'all':
+        subjects = get_subject_names()
+    else:
+        mask_subj = (df['subject'] == subjects[0])
+        for subj in subjects:
+            mask_subj = mask_subj | (df['subject'] == subj)
+
+        df_subj = df[mask_subj]
+        df_subj.reset_index(drop=True, inplace=True)
+
+    if correctness == 'all':
+        correctness_list = ['correct', 'incorrect']
+    else:
+        correctness_list = [correctness]
+
+    for correctness in correctness_list:
+        # filter by correctness
+        mask_df_cor = df_subj['correctness'] == correctness
+        df_cor = df_subj[mask_df_cor]
+        # print("Correctness = {}\t\tSamples = {}".format(correctness, len(df_cor)))
+
+        for act in activities:
+            for subj in subjects:
+
+                scaler = MinMaxScaler()
+
+                mask_df_filtered = (df_cor['activity'] == act) & (df_cor['subject'] == subj)
+                df_filtered = df_cor[mask_df_filtered]
+
+                scaler.fit(df_filtered[axes])
+                new_vals = scaler.transform(df_filtered[axes])
+
+                final_mask = mask_df_cor & mask_df_filtered
+
+                df_subj.loc[final_mask, 'accel_x_normalised'] = new_vals[:, 0]
+                df_subj.loc[final_mask, 'accel_y_normalised'] = new_vals[:, 1]
+                df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
+                df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
+                df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
+
+
+    return df_subj

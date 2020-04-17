@@ -682,6 +682,11 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                 print("Lengths of datasets = {}, {}, {}".format(len(X_train), len(X_valid), len(X_test)))
                 print("Lengths of labels = {}, {}, {}".format(len(y_train), len(y_valid), len(y_test)))
 
+        elif normalisation == 'single':
+            data_train = normalise_data_single(data_train, activities=activities, subjects=train_valid_subjects,
+                                                    correctness=correctness)
+            data_test = normalise_data_single(data_test, activities=activities, subjects=[left_out_subject],
+                                             correctness=correctness)
 
         if normalisation != 'cross':
             print("-" * 80)
