@@ -3,9 +3,13 @@
 The code assumes the following project structure:
 
 Project
+
  |
+ 
  +-- Data
+ 
  |  |
+ 
  |  +-- subject_name_1
  |  +-- subject_name_2
  |     |
