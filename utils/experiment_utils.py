@@ -12,7 +12,7 @@ class ExperimentSettings:
                  n_time_steps, step, n_features, features_name,
                  num_filters, kernel_size, activation, lr,
                  batch_size, epochs, architecture, normalisation,
-                 dropout_rate, optimiser):
+                 dropout_rate, optimiser, l1, l2):
         self.experiment_stats_file = ALL_EXPERIMENT_STATS
         self.experiment_name = experiment_name
         self.activity_name = activity_name
@@ -37,6 +37,8 @@ class ExperimentSettings:
         self.kernel_size = kernel_size
         self.activation = activation
         self.lr = lr
+        self.l1 = l1
+        self.l2 = l2
 
         self.batch_size = batch_size
         self.epochs = epochs
