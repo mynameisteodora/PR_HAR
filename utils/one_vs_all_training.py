@@ -567,8 +567,8 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
 
     for i in range(len(subjects)):
 
-        if i > 1:
-            break
+        # if i > 1:
+        #     break
 
         # generate training, validation and test subjects
         left_out_subject = subjects[i]
