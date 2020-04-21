@@ -116,7 +116,7 @@ def generate_dataset(df, n_time_steps, n_features, step,
                 act_label = one_vs_all_activity[activity]
 
             for subject in subjects:
-                print(f"Generating sets for ACTIVITY {activity}, SUBJECT {subject}, CORR {correctness}")
+                # print(f"Generating sets for ACTIVITY {activity}, SUBJECT {subject}, CORR {correctness}")
                 mask = (df['correctness'] == correctness) & (df['activity'] == activity) & (df['subject'] == subject)
 
                 segments, labels = generate_sequence(dataframe=df[mask], target_vals=df[mask]['activity'],
