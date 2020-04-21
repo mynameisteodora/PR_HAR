@@ -44,8 +44,8 @@ def reshape_segments(x, y, n_time_steps, n_features):
     return x_reshaped, y_reshaped
 
 def reshape_segments_clean(x, y, n_time_steps, n_features):
-    print(np.shape(x))
-    print(np.shape(y))
+    # print(np.shape(x))
+    # print(np.shape(y))
     x_reshaped = np.transpose(np.asarray(x, dtype=np.float32), axes=(0,2,1))
     y_reshaped = np.asarray(pd.get_dummies(y), dtype=np.float32)
     return x_reshaped, y_reshaped
