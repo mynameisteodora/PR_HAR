@@ -5,9 +5,11 @@ import os
 import glob
 
 DATA_FOLDER = '../Data'
+CLEAN_DATA_FOLDER = "../Clean_Data"
 PLOTS_FOLDER = "../Plots"
 
 EXPERIMENT_STATS = "{}/experiment_stats.csv".format(PLOTS_FOLDER)
+ALL_EXPERIMENT_STATS = "{}/all_experiment_stats.csv".format(PLOTS_FOLDER)
 
 
 def get_activity_label_dict():
@@ -56,7 +58,7 @@ def get_subject_names():
     Returns the list of available subject names, assuming they are placed in the 'Data' folder
     :return: List of subject names
     """
-    subject_names = os.listdir(DATA_FOLDER)
+    subject_names = os.listdir(CLEAN_DATA_FOLDER)
     if '.DS_Store' in subject_names:
         subject_names.remove('.DS_Store')
 

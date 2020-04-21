@@ -170,10 +170,11 @@ def standardise_data(df, activities='all', subjects='all', correctness='all',
 
     return df
 
+
 def normalise_data(df, activities='all', subjects='all', correctness='all',
-                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
-                           'accel_magnitude_standardised', 'accel_pca_standardised'],
-                   scaler_fit = None):
+                   axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                         'accel_magnitude_standardised', 'accel_pca_standardised'],
+                   scaler_fit=None):
     """
     Normalises data
     :param df:
@@ -239,10 +240,11 @@ def normalise_data(df, activities='all', subjects='all', correctness='all',
 
     return df, scalers
 
+
 def normalise_data(df, activities='all', subjects='all', correctness='all',
-                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
-                           'accel_magnitude_standardised', 'accel_pca_standardised'],
-                   scaler_fit = None):
+                   axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                         'accel_magnitude_standardised', 'accel_pca_standardised'],
+                   scaler_fit=None):
     """
     Normalises data
     :param df:
@@ -308,10 +310,11 @@ def normalise_data(df, activities='all', subjects='all', correctness='all',
 
     return df_subj, scalers
 
+
 def normalise_data_universal(df, activities='all', subjects='all', correctness='all',
-                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
-                           'accel_magnitude_standardised', 'accel_pca_standardised'],
-                   scaler_fit = None):
+                             axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                                   'accel_magnitude_standardised', 'accel_pca_standardised'],
+                             scaler_fit=None):
     """
     Uses a univsersal scaler to normalise all data, regardless of subject or activity
     The only variable is speed
@@ -370,9 +373,10 @@ def normalise_data_universal(df, activities='all', subjects='all', correctness='
 
     return df_subj, scalers
 
+
 def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correctness='all',
-                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
-                           'accel_magnitude_standardised', 'accel_pca_standardised']):
+                         axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                               'accel_magnitude_standardised', 'accel_pca_standardised']):
     """
     Takes a dataset and a fit normaliser ONLY FOR ONE ACTIVITY
     and returns the dataset normalised with that specific normaliser
@@ -402,7 +406,6 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
     else:
         correctness_list = [correctness]
 
-
     for correctness in correctness_list:
 
         # filter by correctness
@@ -413,8 +416,6 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
         # load the scaler for the specific selected activity
         print("Loading scaler for correctness = {} and activity = {}".format(correctness, activity_norm))
         scaler = scaler_fit[correctness][activity_norm]
-
-
 
         for activity in range(10):
             if activity != activity_norm:
@@ -436,10 +437,10 @@ def cross_normalise_data(df, scaler_fit, activity_norm=0, subjects='all', correc
 
     return df_subj
 
-def normalise_data_single(df, activities='all', subjects='all', correctness='all',
-                     axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
-                           'accel_magnitude_standardised', 'accel_pca_standardised']):
 
+def normalise_data_single(df, activities='all', subjects='all', correctness='all',
+                          axes=['accel_x_standardised', 'accel_y_standardised', 'accel_z_standardised',
+                                'accel_magnitude_standardised', 'accel_pca_standardised']):
     if activities == 'all':
         activities = range(10)
 
@@ -466,7 +467,6 @@ def normalise_data_single(df, activities='all', subjects='all', correctness='all
 
         for act in activities:
             for subj in subjects:
-
                 scaler = MinMaxScaler()
 
                 mask_df_filtered = (df_cor['activity'] == act) & (df_cor['subject'] == subj)
@@ -482,6 +482,5 @@ def normalise_data_single(df, activities='all', subjects='all', correctness='all
                 df_subj.loc[final_mask, 'accel_z_normalised'] = new_vals[:, 2]
                 df_subj.loc[final_mask, 'accel_magnitude_normalised'] = new_vals[:, 3]
                 df_subj.loc[final_mask, 'accel_pca_normalised'] = new_vals[:, 4]
-
 
     return df_subj

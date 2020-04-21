@@ -43,6 +43,13 @@ def reshape_segments(x, y, n_time_steps, n_features):
     y_reshaped = np.asarray(pd.get_dummies(y), dtype=np.float32)
     return x_reshaped, y_reshaped
 
+def reshape_segments_clean(x, y, n_time_steps, n_features):
+    print(np.shape(x))
+    print(np.shape(y))
+    x_reshaped = np.transpose(np.asarray(x, dtype=np.float32), axes=(0,2,1))
+    y_reshaped = np.asarray(pd.get_dummies(y), dtype=np.float32)
+    return x_reshaped, y_reshaped
+
 
 def generate_dataset(df, n_time_steps, n_features, step,
                      features=['accel_x', 'accel_y', 'accel_z'],
@@ -109,13 +116,13 @@ def generate_dataset(df, n_time_steps, n_features, step,
                 act_label = one_vs_all_activity[activity]
 
             for subject in subjects:
-
+                print(f"Generating sets for ACTIVITY {activity}, SUBJECT {subject}, CORR {correctness}")
                 mask = (df['correctness'] == correctness) & (df['activity'] == activity) & (df['subject'] == subject)
 
                 segments, labels = generate_sequence(dataframe=df[mask], target_vals=df[mask]['activity'],
                                                      columns=features, n_time_steps=n_time_steps, step=step)
                 # reshape
-                segments, labels = reshape_segments(segments, labels, n_time_steps=n_time_steps, n_features=n_features)
+                segments, labels = reshape_segments_clean(segments, labels, n_time_steps=n_time_steps, n_features=n_features)
                 labels = np.full((segments.shape[0], second_dim), act_label)
 
                 if type(act_label) == int and act_label == 0 and downsample:

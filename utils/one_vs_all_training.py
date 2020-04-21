@@ -13,6 +13,7 @@ import random
 import pandas as pd
 
 from sklearn import metrics
+from sklearn.metrics import precision_recall_fscore_support as score
 import seaborn as sns
 import pickle
 
@@ -74,33 +75,46 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
     if architecture == 'shallow':
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear', input_shape=(n_time_steps, n_features)))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
         model.add(Dense(n_classes, activation='softmax'))
 
         model.summary()
         return model
+
     elif architecture == 'deep':
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
+                         activation='linear', input_shape=(n_time_steps, n_features)))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear'))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear'))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
+        model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
         model.add(Dense(n_classes, activation='softmax'))
@@ -135,21 +149,33 @@ def initialise_model(num_filters=64, kernel_size=3, activation='relu',
     elif architecture=='dropout':
         model = Sequential()
         model.add(Conv1D(filters=num_filters, kernel_size=kernel_size,
-                         activation=activation, input_shape=(n_time_steps, n_features)))
+                         activation='linear', input_shape=(n_time_steps, n_features)))
         model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
-        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
-                         activation=activation))
-        model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Dropout(dropout_rate))
-        model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
-                         activation=activation))
+
+        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
+                         activation='linear'))
         model.add(BatchNormalization())
+        model.add(Activation(activation))
+
+
+        model.add(Conv1D(filters=num_filters//2, kernel_size=kernel_size,
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
         model.add(Dropout(dropout_rate))
+
         model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
-                         activation=activation))
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
+
+        model.add(Conv1D(filters=num_filters//4, kernel_size=kernel_size,
+                         activation='linear'))
+        model.add(BatchNormalization())
+        model.add(Activation(activation))
+
         model.add(Flatten())
         model.add(Dense(100, activation='relu'))
         model.add(Dense(n_classes, activation='softmax'))
@@ -264,6 +290,11 @@ def losoxv_one_vs_all(experiment_name, one_vs_all_activity=0, random_seed=42, co
     losoxv_stats = pd.DataFrame(index=subjects, columns=['train_acc', 'train_loss',
                                                          'valid_acc', 'valid_loss',
                                                          'test_acc', 'test_loss'])
+
+    # precision, recall, fscore
+    precisions = {}
+    recalls = {}
+    fscores = {}
 
     save_path = "../Plots/{}/".format(experiment_name)
 
@@ -497,7 +528,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                l1=0.01, l2=0.01, dropout_rate=0.2):
 
     # Loading data
-    data = pd.read_csv("../Preprocessed/raw_data.csv")
+    data = pd.read_csv("../Preprocessed/clean_data_raw.csv")
     data = data.reindex(columns=['timestamp', 'seq', 'accel_x', 'accel_y', 'accel_z',
                                  'accel_magnitude', 'accel_pca',
                                  'subject', 'activity', 'correctness',
@@ -527,12 +558,17 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
                                                          'valid_acc', 'valid_loss',
                                                          'test_acc', 'test_loss'])
 
+    # precision, recall, fscore
+    precisions = {}
+    recalls = {}
+    fscores = {}
+
     save_path = "../Plots/{}/".format(experiment_name)
 
     for i in range(len(subjects)):
 
-        #         if i > 1:
-        #             break
+        if i > 1:
+            break
 
         # generate training, validation and test subjects
         left_out_subject = subjects[i]
@@ -737,6 +773,12 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         print("*" * 80)
         print(metrics.classification_report(y_true_labels, y_pred_labels))
 
+        precision, recall, fscore, _ = score(y_true_labels, y_pred_labels)
+
+        precisions[left_out_subject] = precision
+        recalls[left_out_subject] = recall
+        fscores[left_out_subject] = fscore
+
         activity_labels = get_activity_label_dict()
         cm_labels = [activity_labels[i] for i in range(10)]
 
@@ -780,7 +822,7 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
         # save everything
     losoxv_stats.to_csv("../Plots/{}/losoxv_stats.csv".format(experiment_name))
     pickle.dump(cm, open("../Plots/{}/cms.p".format(experiment_name), 'wb'))
-    pickle.dump(histories, open("../Plots/{}/histories.p".format(experiment_name), 'wb'))
+    # pickle.dump(histories, open("../Plots/{}/histories.p".format(experiment_name), 'wb'))
 
     # mean values of CM
     mean_cm = np.zeros(cm['adela'].shape)
@@ -832,4 +874,4 @@ def losoxv_all(experiment_name, random_seed=42, correctness='correct',
     fig.tight_layout()
     plt.savefig("../Plots/{}/mean_LC_losoxv.pdf".format(experiment_name))
 
-    return losoxv_stats, cm, histories
+    return losoxv_stats, cm, histories, precisions, recalls, fscores

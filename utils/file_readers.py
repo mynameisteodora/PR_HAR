@@ -143,3 +143,12 @@ def read_files_filtered(subjects='all', activities='all', modes='all'):
     paths = get_recording_paths(subjects, activities, modes)
 
     return read_by_paths(paths)
+
+def read_clean_files(subjects='all', activities='all', model='all'):
+    """
+    Function for reading clean files. The files already contain the engineered axes (magnitude, pca, lp, grad etc)
+    :param subjects: list of subjects names or 'all'
+    :param activities: list of activity labels or 'all'
+    :param model: 'correct', 'incorrect' or 'all'
+    :return: dataframe containing all relevant information
+    """
