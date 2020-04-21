@@ -58,11 +58,16 @@ def get_subject_names():
     Returns the list of available subject names, assuming they are placed in the 'Data' folder
     :return: List of subject names
     """
-    subject_names = os.listdir(CLEAN_DATA_FOLDER)
-    if '.DS_Store' in subject_names:
-        subject_names.remove('.DS_Store')
+    # subject_names = os.listdir(CLEAN_DATA_FOLDER)
+    # if '.DS_Store' in subject_names:
+    #     subject_names.remove('.DS_Store')
+    #
+    # return sorted(subject_names)
 
-    return sorted(subject_names)
+    return ['adela','aggie','ali','andrius',
+            'diana','jack','joao','lukasz',
+            'nikita','rim','ron','santi',
+            'seb','sharan','teo','zoe']
 
 
 def get_all_recording_paths():
